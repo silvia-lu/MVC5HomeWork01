@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using MVC5HomeWork01.Models;
+using System.Data.Entity.Validation;
 
 namespace MVC5HomeWork01.Controllers
 {
@@ -116,7 +117,20 @@ namespace MVC5HomeWork01.Controllers
             //return View(客戶聯絡人);
             var customer = db.客戶聯絡人.Find(id);
             customer.IsDeleted = true;
-            db.SaveChanges();
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbEntityValidationException ex)
+            {
+                foreach (var entityErrors in ex.EntityValidationErrors)
+                {
+                    foreach (var vErrors in entityErrors.ValidationErrors)
+                    {
+                        throw new DbEntityValidationException(vErrors.PropertyName + " 發生錯誤：" + vErrors.ErrorMessage);
+                    }
+                }
+            }
             return RedirectToAction("Index");
         }
 
