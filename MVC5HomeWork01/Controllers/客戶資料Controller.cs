@@ -15,9 +15,16 @@ namespace MVC5HomeWork01.Controllers
         private 客戶資料Entities db = new 客戶資料Entities();
 
         // GET: 客戶資料
-        public ActionResult Index()
+        public ActionResult Index(string search)
         {
-            return View(db.客戶資料.ToList());
+            var customer = db.客戶資料.Where(p => p.IsDeleted == false);
+            if (!string.IsNullOrEmpty(search))
+            {
+                customer = customer.Where(p => p.客戶名稱.Contains(search));
+            }
+            customer = customer.OrderByDescending(p => p.Id).Take(10);
+            return View(customer);
+            //return View(db.客戶資料.ToList());
         }
 
         // GET: 客戶資料/Details/5
@@ -92,16 +99,20 @@ namespace MVC5HomeWork01.Controllers
         // GET: 客戶資料/Delete/5
         public ActionResult Delete(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
-            if (客戶資料 == null)
-            {
-                return HttpNotFound();
-            }
-            return View(客戶資料);
+            //if (id == null)
+            //{
+            //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            //}
+            //客戶資料 客戶資料 = db.客戶資料.Find(id);
+            //if (客戶資料 == null)
+            //{
+            //    return HttpNotFound();
+            //}
+            //return View(客戶資料);
+            var customer = db.客戶資料.Find(id);
+            customer.IsDeleted = true;
+            db.SaveChanges();
+            return RedirectToAction("Index");
         }
 
         // POST: 客戶資料/Delete/5

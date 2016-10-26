@@ -15,10 +15,17 @@ namespace MVC5HomeWork01.Controllers
         private 客戶資料Entities db = new 客戶資料Entities();
 
         // GET: 客戶聯絡人
-        public ActionResult Index()
+        public ActionResult Index(string search)
         {
             var 客戶聯絡人 = db.客戶聯絡人.Include(客 => 客.客戶資料);
-            return View(客戶聯絡人.ToList());
+            客戶聯絡人 = 客戶聯絡人.Where(p => p.IsDeleted == false);
+            if (!string.IsNullOrEmpty(search))
+            {
+                客戶聯絡人 = 客戶聯絡人.Where(p => p.職稱.Contains(search));
+            }
+            客戶聯絡人 = 客戶聯絡人.OrderByDescending(p => p.Id).Take(10);
+
+            return View(客戶聯絡人);
         }
 
         // GET: 客戶聯絡人/Details/5
@@ -97,16 +104,20 @@ namespace MVC5HomeWork01.Controllers
         // GET: 客戶聯絡人/Delete/5
         public ActionResult Delete(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
-            if (客戶聯絡人 == null)
-            {
-                return HttpNotFound();
-            }
-            return View(客戶聯絡人);
+            //if (id == null)
+            //{
+            //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            //}
+            //客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
+            //if (客戶聯絡人 == null)
+            //{
+            //    return HttpNotFound();
+            //}
+            //return View(客戶聯絡人);
+            var customer = db.客戶聯絡人.Find(id);
+            customer.IsDeleted = true;
+            db.SaveChanges();
+            return RedirectToAction("Index");
         }
 
         // POST: 客戶聯絡人/Delete/5

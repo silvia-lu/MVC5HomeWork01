@@ -15,10 +15,16 @@ namespace MVC5HomeWork01.Controllers
         private 客戶資料Entities db = new 客戶資料Entities();
 
         // GET: 客戶銀行資訊
-        public ActionResult Index()
+        public ActionResult Index(string search)
         {
             var 客戶銀行資訊 = db.客戶銀行資訊.Include(客 => 客.客戶資料);
-            return View(客戶銀行資訊.ToList());
+            客戶銀行資訊 = 客戶銀行資訊.Where(p => p.IsDeleted == false);
+            if (!string.IsNullOrEmpty(search))
+            {
+                客戶銀行資訊 = 客戶銀行資訊.Where(p => p.銀行名稱.Contains(search));
+            }
+            客戶銀行資訊 = 客戶銀行資訊.OrderByDescending(p => p.Id).Take(10);
+            return View(客戶銀行資訊);
         }
 
         // GET: 客戶銀行資訊/Details/5
@@ -97,16 +103,20 @@ namespace MVC5HomeWork01.Controllers
         // GET: 客戶銀行資訊/Delete/5
         public ActionResult Delete(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            客戶銀行資訊 客戶銀行資訊 = db.客戶銀行資訊.Find(id);
-            if (客戶銀行資訊 == null)
-            {
-                return HttpNotFound();
-            }
-            return View(客戶銀行資訊);
+            //if (id == null)
+            //{
+            //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            //}
+            //客戶銀行資訊 客戶銀行資訊 = db.客戶銀行資訊.Find(id);
+            //if (客戶銀行資訊 == null)
+            //{
+            //    return HttpNotFound();
+            //}
+            //return View(客戶銀行資訊);
+            var customer = db.客戶銀行資訊.Find(id);
+            customer.IsDeleted = true;
+            db.SaveChanges();
+            return RedirectToAction("Index");
         }
 
         // POST: 客戶銀行資訊/Delete/5
